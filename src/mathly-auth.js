@@ -110,15 +110,42 @@ document.getElementById("go").onclick=login;
 </script></body></html>`;
 
 // Only ever sent to logged-in users. Adds the "Return to fake site" button.
+// While a website is open in the proxy the button hides; hover (or tap) the bottom-right
+// corner to bring it back.
 const RETURN_JS = `(function(){
-var h=document.createElement("div");
-h.style.cssText="all:initial;position:fixed;right:12px;bottom:12px;z-index:2147483647;";
-var s=h.attachShadow({mode:"open"});
-s.innerHTML='<style>button{font:600 13px "Trebuchet MS","Segoe UI",sans-serif;background:#2f5bea;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);opacity:.9}button:hover{opacity:1}button:focus-visible{outline:3px solid #fff;outline-offset:2px}</style><button id="b">Return to fake site</button>';
+var host=document.createElement("div");
+host.style.cssText="all:initial;position:fixed;right:0;bottom:0;z-index:2147483647;";
+var s=host.attachShadow({mode:"open"});
+s.innerHTML='<style>button{position:absolute;right:8px;bottom:8px;font:600 13px "Trebuchet MS","Segoe UI",sans-serif;background:#2f5bea;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);white-space:nowrap}button:focus-visible{outline:3px solid #fff;outline-offset:2px}.corner button{visibility:hidden}</style><div id="w"><button id="b">Return to fake site</button></div>';
+var w=s.getElementById("w"),last="",hover=false,timer=0;
+function browsing(){
+  var f=document.querySelectorAll("iframe");
+  for(var i=0;i<f.length;i++){
+    var r=f[i].getBoundingClientRect(),c=getComputedStyle(f[i]);
+    if(r.width>50&&r.height>50&&c.display!=="none"&&c.visibility!=="hidden")return true;
+  }
+  return false;
+}
+function update(){
+  var mode=(!browsing()||hover)?"full":"corner";
+  if(mode===last)return;
+  last=mode;
+  host.style.width=mode==="full"?"190px":"28px";
+  host.style.height=mode==="full"?"56px":"28px";
+  w.className=mode==="full"?"":"corner";
+}
+host.addEventListener("mouseenter",function(){hover=true;update()});
+host.addEventListener("mouseleave",function(){hover=false;update()});
+host.addEventListener("click",function(){
+  if(last==="corner"){hover=true;update();clearTimeout(timer);timer=setTimeout(function(){hover=false;update()},4000)}
+});
 s.getElementById("b").onclick=function(){
   fetch("/_mathly/logout",{method:"POST"}).finally(function(){location.replace("/?"+Date.now())});
 };
-document.documentElement.appendChild(h);
+document.documentElement.appendChild(host);
+new MutationObserver(update).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style","class","hidden","src"]});
+setInterval(update,1000);
+update();
 })();`;
 
 export function mathlyAuth(fastify) {
