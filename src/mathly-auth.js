@@ -3,10 +3,26 @@
 // returns the fake Mathly page. Real files, /scram/, /baremux/ and the Wisp
 // websocket are all refused, so there is nothing to bypass.
 import { createHmac, createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const COOKIE = "mathly_session";
 const SESSION_MS = 12 * 60 * 60 * 1000; // 12 hours
-const SECRET = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+// The signing secret must be the SAME for every request. If it changes (server restart,
+// several processes/instances), valid logins randomly stop working: missing CSS, no
+// return button, proxy refusing to connect. Best: set SESSION_SECRET on your host.
+// Fallback: a random secret saved to a temp file so restarts/workers share it.
+function loadSecret() {
+	if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+	const file = join(tmpdir(), "mathly-secret");
+	try { return readFileSync(file, "utf8").trim(); } catch {}
+	const s = randomBytes(32).toString("hex");
+	try { writeFileSync(file, s, { mode: 0o600, flag: "wx" }); }
+	catch { try { return readFileSync(file, "utf8").trim(); } catch {} }
+	return s;
+}
+const SECRET = loadSecret();
 // SHA-256 of "username:password". Override with the MATHLY_HASH env var.
 const CRED_HASH =
 	process.env.MATHLY_HASH ||
