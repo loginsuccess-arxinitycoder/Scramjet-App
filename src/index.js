@@ -9,6 +9,9 @@ import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 
+// MATHLY: server-side login gate (see mathly-auth.js in this folder)
+import { mathlyAuth, isAuthed } from "./mathly-auth.js";
+
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
@@ -29,11 +32,17 @@ const fastify = Fastify({
 				handler(req, res);
 			})
 			.on("upgrade", (req, socket, head) => {
+				// MATHLY: no login cookie = no proxy connection
+				if (!isAuthed(req)) return socket.destroy();
+
 				if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);
 				else socket.end();
 			});
 	},
 });
+
+// MATHLY: must come before every fastify.register(...) below
+mathlyAuth(fastify);
 
 fastify.register(fastifyStatic, {
 	root: publicPath,
