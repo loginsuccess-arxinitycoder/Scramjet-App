@@ -3,30 +3,19 @@
 // returns the fake Mathly page. Real files, /scram/, /baremux/ and the Wisp
 // websocket are all refused, so there is nothing to bypass.
 import { createHmac, createHash, randomBytes, timingSafeEqual } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
-const COOKIE = "mathly_session";
+const COOKIE = "mathly_auth";
 const SESSION_MS = 12 * 60 * 60 * 1000; // 12 hours
-// The signing secret must be the SAME for every request. If it changes (server restart,
-// several processes/instances), valid logins randomly stop working: missing CSS, no
-// return button, proxy refusing to connect. Best: set SESSION_SECRET on your host.
-// Fallback: a random secret saved to a temp file so restarts/workers share it.
-function loadSecret() {
-	if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
-	const file = join(tmpdir(), "mathly-secret");
-	try { return readFileSync(file, "utf8").trim(); } catch {}
-	const s = randomBytes(32).toString("hex");
-	try { writeFileSync(file, s, { mode: 0o600, flag: "wx" }); }
-	catch { try { return readFileSync(file, "utf8").trim(); } catch {} }
-	return s;
-}
-const SECRET = loadSecret();
 // SHA-256 of "username:password". Override with the MATHLY_HASH env var.
 const CRED_HASH =
 	process.env.MATHLY_HASH ||
 	"0b28742f984d7e038d784854d070cdd3e3c2c40f9ef4fe5ee5b71536f79e9a00";
+// Signing key: the SAME on every restart and every server instance, so a valid login
+// never randomly stops working. For extra safety, set SESSION_SECRET (any long random
+// string) on your host.
+const SECRET = createHash("sha256")
+	.update("mathly:" + (process.env.SESSION_SECRET || CRED_HASH))
+	.digest("hex");
 
 const sign = (exp) => createHmac("sha256", SECRET).update(String(exp)).digest("hex");
 const safeEq = (a, b) => {
@@ -34,22 +23,35 @@ const safeEq = (a, b) => {
 	return x.length === y.length && timingSafeEqual(x, y);
 };
 
-function readCookie(req) {
-	const m = (req.headers.cookie || "")
+// Browsers can send several cookies with the same name; accept the request if ANY is valid.
+function readCookies(req) {
+	return (req.headers.cookie || "")
 		.split(";").map((s) => s.trim())
-		.find((s) => s.startsWith(COOKIE + "="));
-	return m ? m.slice(COOKIE.length + 1) : "";
+		.filter((s) => s.startsWith(COOKIE + "="))
+		.map((s) => s.slice(COOKIE.length + 1));
+}
+
+// "ok" | "none" | "expired" | "badsig"
+export function authState(req) {
+	const all = readCookies(req);
+	if (!all.length) return "none";
+	let why = "badsig";
+	for (const c of all) {
+		const [exp, sig] = c.split(".");
+		if (!exp || !sig || !safeEq(sig, sign(exp))) continue;
+		if (Number(exp) > Date.now()) return "ok";
+		why = "expired";
+	}
+	return why;
 }
 
 // Works on Fastify requests AND raw Node requests (use it in the websocket upgrade handler).
-export function isAuthed(req) {
-	const [exp, sig] = readCookie(req).split(".");
-	return !!exp && !!sig && Number(exp) > Date.now() && safeEq(sig, sign(exp));
-}
+export const isAuthed = (req) => authState(req) === "ok";
 
 const isHttps = (req) => req.headers["x-forwarded-proto"] === "https" || !!req.socket?.encrypted;
 const cookieStr = (val, req, maxAge) =>
-	`${COOKIE}=${val}; Path=/; HttpOnly; SameSite=Lax${isHttps(req) ? "; Secure" : ""}` +
+	`${COOKIE}=${val}; Path=/; HttpOnly; ` +
+	(isHttps(req) ? "SameSite=None; Secure; Partitioned" : "SameSite=Lax") +
 	(maxAge !== undefined ? `; Max-Age=${maxAge}` : "");
 
 // crude brute-force limit: 10 login attempts per IP per minute
@@ -124,7 +126,9 @@ export function mathlyAuth(fastify) {
 	fastify.addHook("onRequest", async (req, reply) => {
 		const path = req.url.split("?")[0];
 		if (path === "/_mathly/login" || path === "/_mathly/logout") return;
-		if (isAuthed(req)) return;
+		const state = authState(req);
+		if (state === "ok") return;
+		if (state !== "none") console.log(`[mathly] ${state} cookie on ${req.method} ${path}`);
 		const wantsHtml = req.method === "GET" && (req.headers.accept || "").includes("text/html");
 		reply
 			.code(wantsHtml ? 200 : 404)
