@@ -146,6 +146,82 @@ document.documentElement.appendChild(host);
 new MutationObserver(update).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style","class","hidden","src"]});
 setInterval(update,1000);
 update();
+var n=document.createElement("script");n.src="/_mathly/nav.js";document.head.appendChild(n);
+})();`;
+
+// Loaded by return.js on every page. Handles /l?url=...&f=true and draws the URL bar.
+const NAV_JS = `(function(){
+var q=new URLSearchParams(location.search),target=q.get("url"),direct=q.get("f")==="true",PREFIX="/scramjet/",BAR=44;
+function frame(){return document.getElementById("sj-frame")||document.querySelector("iframe")}
+function enc(u){try{if(typeof scramjet!=="undefined"&&scramjet.encodeUrl){var r=String(scramjet.encodeUrl(u));if(r.indexOf(PREFIX)>=0)return r}}catch(e){}return PREFIX+encodeURIComponent(u)}
+function dec(h){
+  try{if(typeof scramjet!=="undefined"&&scramjet.decodeUrl){var r=String(scramjet.decodeUrl(h));if(/^https?:/i.test(r))return r}}catch(e){}
+  var i=h.indexOf(PREFIX);if(i<0)return h;
+  var x=h.slice(i+PREFIX.length);try{return decodeURIComponent(x)}catch(e){return x}
+}
+function norm(v){
+  v=(v||"").trim();if(!v)return "";
+  if(/^[a-z][a-z0-9+.-]*:/i.test(v))return v;
+  if(v.indexOf(" ")<0&&v.indexOf(".")>0)return "https://"+v;
+  return "https://www.google.com/search?q="+encodeURIComponent(v);
+}
+
+/* ---- /l?url=...&f=... launcher ---- */
+function launch(){
+  if(!target||location.pathname!=="/l")return;
+  var form=document.getElementById("sj-form")||document.querySelector("form");
+  var input=document.getElementById("sj-address")||(form&&form.querySelector("input"));
+  if(!form||!input)return;
+  if(direct)document.documentElement.style.visibility="hidden";
+  input.value=norm(target);
+  if(form.requestSubmit)form.requestSubmit();else form.dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}));
+  if(!direct)return;
+  var t0=Date.now(),iv=setInterval(function(){
+    var f=frame();
+    try{
+      if(f&&f.contentWindow.location.href.indexOf(PREFIX)>=0&&f.contentDocument.readyState==="complete"){
+        clearInterval(iv);location.replace(f.contentWindow.location.href);return;
+      }
+    }catch(e){}
+    if(Date.now()-t0>25000){clearInterval(iv);document.documentElement.style.visibility=""}
+  },150);
+}
+if(document.readyState==="complete")launch();else window.addEventListener("load",launch);
+
+/* ---- URL bar (not shown when f=true) ---- */
+if(direct)return;
+var host=document.createElement("div");
+host.style.cssText="all:initial;position:fixed;top:0;left:0;right:0;height:"+BAR+"px;z-index:2147483646;display:none;";
+var s=host.attachShadow({mode:"open"});
+s.innerHTML='<style>#bar{display:flex;align-items:center;gap:6px;height:'+BAR+'px;padding:0 8px;box-sizing:border-box;background:#1d2535;border-bottom:1px solid #2c3650;font-family:"Trebuchet MS","Segoe UI",sans-serif}button{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#eef1f7;font-size:15px;cursor:pointer}button:hover{background:#2c3650}input{flex:1;min-width:0;height:30px;box-sizing:border-box;border:1px solid #2c3650;border-radius:15px;background:#141a26;color:#eef1f7;padding:0 14px;font:14px "Trebuchet MS","Segoe UI",sans-serif}input:focus{outline:2px solid #7c9bff}</style><div id="bar"><button id="bk" title="Back">&#9664;</button><button id="fw" title="Forward">&#9654;</button><button id="rl" title="Reload">&#8635;</button><input id="ad" spellcheck="false" autocomplete="off" placeholder="Search or enter address"></div>';
+document.documentElement.appendChild(host);
+var ad=s.getElementById("ad");
+function w(){var f=frame();return f&&f.contentWindow}
+s.getElementById("bk").onclick=function(){try{w().history.back()}catch(e){}};
+s.getElementById("fw").onclick=function(){try{w().history.forward()}catch(e){}};
+s.getElementById("rl").onclick=function(){try{w().location.reload()}catch(e){}};
+ad.addEventListener("focus",function(){ad.select()});
+ad.addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  var u=norm(ad.value),f=frame();
+  if(u&&f)f.src=enc(u);
+  ad.blur();
+});
+function tick(){
+  var f=frame(),on=false;
+  if(f){var r=f.getBoundingClientRect(),c=getComputedStyle(f);on=r.width>50&&r.height>50&&c.display!=="none"&&c.visibility!=="hidden"}
+  host.style.display=on?"block":"none";
+  if(!on)return;
+  if(!f.__m){
+    f.__m=1;
+    var p=[["position","fixed"],["top",BAR+"px"],["left","0"],["width","100%"],["height","calc(100% - "+BAR+"px)"],["border","0"]];
+    for(var i=0;i<p.length;i++)f.style.setProperty(p[i][0],p[i][1],"important");
+  }
+  if(s.activeElement!==ad){
+    try{var h=f.contentWindow.location.href;if(h.indexOf(PREFIX)>=0){var d=dec(h);if(ad.value!==d)ad.value=d}}catch(e){}
+  }
+}
+setInterval(tick,500);
 })();`;
 
 export function mathlyAuth(fastify) {
@@ -180,6 +256,13 @@ export function mathlyAuth(fastify) {
 		reply.header("Set-Cookie", cookieStr("", req, 0));
 		return { ok: true };
 	});
+
+	// /l?url=https://example.com&f=true  -> serves the normal page; nav.js starts the proxy
+	fastify.get("/l", (req, reply) => reply.header("Cache-Control", "no-store").sendFile("index.html"));
+
+	fastify.get("/_mathly/nav.js", async (req, reply) =>
+		reply.header("Cache-Control", "no-store").type("text/javascript").send(NAV_JS),
+	);
 
 	fastify.get("/_mathly/return.js", async (req, reply) =>
 		reply.header("Cache-Control", "no-store").type("text/javascript").send(RETURN_JS),
