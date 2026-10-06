@@ -203,11 +203,12 @@ if(direct)return;
 var host=document.createElement("div");
 host.style.cssText="all:initial;position:fixed;top:0;left:0;right:0;height:"+BAR+"px;z-index:2147483646;display:none;";
 var s=host.attachShadow({mode:"open"});
-s.innerHTML='<style>#bar{display:flex;align-items:center;gap:6px;height:'+BAR+'px;padding:0 8px;box-sizing:border-box;background:#1d2535;border-bottom:1px solid #2c3650;font-family:"Trebuchet MS","Segoe UI",sans-serif}button{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#eef1f7;font-size:15px;cursor:pointer}button:hover{background:#2c3650}input{flex:1;min-width:0;height:30px;box-sizing:border-box;border:1px solid #2c3650;border-radius:15px;background:#141a26;color:#eef1f7;padding:0 14px;font:14px "Trebuchet MS","Segoe UI",sans-serif}input:focus{outline:2px solid #7c9bff}</style><div id="bar"><button id="bk" title="Back">&#9664;</button><button id="fw" title="Forward">&#9654;</button><button id="rl" title="Reload">&#8635;</button><input id="ad" spellcheck="false" autocomplete="off" placeholder="Search or enter address"></div>';
+s.innerHTML='<style>#bar{display:flex;align-items:center;gap:6px;height:'+BAR+'px;padding:0 8px;box-sizing:border-box;background:#1d2535;border-bottom:1px solid #2c3650;font-family:"Trebuchet MS","Segoe UI",sans-serif}button{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#eef1f7;font-size:15px;cursor:pointer}button:hover{background:#2c3650}input{flex:1;min-width:0;height:30px;box-sizing:border-box;border:1px solid #2c3650;border-radius:15px;background:#141a26;color:#eef1f7;padding:0 14px;font:14px "Trebuchet MS","Segoe UI",sans-serif}input:focus{outline:2px solid #7c9bff}</style><div id="bar"><button id="bk" title="Back">&#9664;</button><button id="fw" title="Forward">&#9654;</button><button id="rl" title="Reload">&#8635;</button><button id="hm" title="Home">&#8962;</button><input id="ad" spellcheck="false" autocomplete="off" placeholder="Search or enter address"></div>';
 document.documentElement.appendChild(host);
 var ad=s.getElementById("ad");
 function w(){var f=frame();return f&&f.contentWindow}
 s.getElementById("bk").onclick=function(){try{w().history.back()}catch(e){}};
+s.getElementById("hm").onclick=function(){location.href="/"};
 s.getElementById("fw").onclick=function(){try{w().history.forward()}catch(e){}};
 s.getElementById("rl").onclick=function(){var f=frame();try{var h=f.contentWindow.location.href,a=dec(h),c=clean(a);if(c!==a)f.src=enc(c);else f.contentWindow.location.reload()}catch(e){}};
 ad.addEventListener("focus",function(){ad.select()});
