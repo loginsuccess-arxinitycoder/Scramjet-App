@@ -166,6 +166,16 @@ function norm(v){
   return "https://www.google.com/search?q="+encodeURIComponent(v);
 }
 
+/* Some sites (Google adds ?zx=...) end up with a nested /scramjet/ path in their address; unwrap it. */
+function clean(u){
+  for(var i=0;i<6;i++){
+    var m=/^https?:[/][/][^/?#]+[/]scramjet[/]([^?#]+)/i.exec(u);
+    if(!m)break;
+    try{u=decodeURIComponent(m[1])}catch(e){u=m[1];break}
+  }
+  return u;
+}
+
 /* ---- /l?url=...&f=... launcher ---- */
 function launch(){
   if(!target||location.pathname!=="/l")return;
@@ -199,7 +209,7 @@ var ad=s.getElementById("ad");
 function w(){var f=frame();return f&&f.contentWindow}
 s.getElementById("bk").onclick=function(){try{w().history.back()}catch(e){}};
 s.getElementById("fw").onclick=function(){try{w().history.forward()}catch(e){}};
-s.getElementById("rl").onclick=function(){try{w().location.reload()}catch(e){}};
+s.getElementById("rl").onclick=function(){var f=frame();try{var h=f.contentWindow.location.href,a=dec(h),c=clean(a);if(c!==a)f.src=enc(c);else f.contentWindow.location.reload()}catch(e){}};
 ad.addEventListener("focus",function(){ad.select()});
 ad.addEventListener("keydown",function(e){
   if(e.key!=="Enter")return;
@@ -218,7 +228,7 @@ function tick(){
     for(var i=0;i<p.length;i++)f.style.setProperty(p[i][0],p[i][1],"important");
   }
   if(s.activeElement!==ad){
-    try{var h=f.contentWindow.location.href;if(h.indexOf(PREFIX)>=0){var d=dec(h);if(ad.value!==d)ad.value=d}}catch(e){}
+    try{var h=f.contentWindow.location.href;if(h.indexOf(PREFIX)>=0){var d=clean(dec(h));if(ad.value!==d)ad.value=d}}catch(e){}
   }
 }
 setInterval(tick,500);
