@@ -26,7 +26,7 @@ window.MATHLY_HOME = {
 
   pages: [
     {
-      id: "apps",
+      id: "a",
       title: "Apps",
       icon: "🧩",
       direct: false,            // apps open WITH the url bar
@@ -38,7 +38,7 @@ window.MATHLY_HOME = {
       ],
     },
     {
-      id: "games",
+      id: "g",
       title: "Games",
       icon: "🎮",
       direct: true,             // games open WITHOUT the url bar (f=true)
