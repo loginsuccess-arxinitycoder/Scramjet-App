@@ -8,13 +8,22 @@
      id       short name used in the address (no spaces)
      title    name shown on the button and page
      icon     emoji
-     direct   true  = tiles open with NO url bar (same as ?f=true)
-              false = tiles open with the url bar (back / reload / home)
+     direct   true  = hide the url bar (same as ?f=true)
+              false = show the url bar (back / reload / home)
+     embed    true  = site opens inside the Mathly page (iframe)   [default]
+              false = browser goes straight to the proxied page
+              (embed is separate from direct; with embed: false there is
+               never a url bar, because the Mathly page isn't there anymore)
      items    the tiles
 
    Tile settings:
      name, url, icon, desc (hover text)
-     direct   optional: overrides the page's setting for just this tile
+     direct, embed   optional: override the page's setting for just this tile
+
+   What the combinations do:
+     embed: true,  direct: false   iframe + url bar
+     embed: true,  direct: true    iframe, NO url bar
+     embed: false, (direct any)    straight to the proxied page, NO url bar
 
    Add a tile:  copy one { ... } line into a page's items
    Add a page:  copy a whole page block into "pages"
@@ -26,10 +35,11 @@ window.MATHLY_HOME = {
 
   pages: [
     {
-      id: "a",
+      id: "apps",
       title: "Apps",
       icon: "🧩",
-      direct: false,            // apps open WITH the url bar
+      direct: false,            // url bar shown
+      embed: true,              // opens inside the page (iframe)
       items: [
         { name: "Google",    url: "https://www.google.com",    icon: "🔎" },
         { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️" },
@@ -38,10 +48,11 @@ window.MATHLY_HOME = {
       ],
     },
     {
-      id: "g",
+      id: "games",
       title: "Games",
       icon: "🎮",
-      direct: true,             // games open WITHOUT the url bar (f=true)
+      direct: true,             // no url bar
+      embed: false,             // straight to the proxied page (set true to keep it in an iframe)
       items: [
         { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games" },
         { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games" },
