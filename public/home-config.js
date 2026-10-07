@@ -39,7 +39,7 @@ window.MATHLY_HOME = {
       title: "Apps",
       icon: "🧩",
       direct: false,            // url bar shown
-      embed: true,              // opens inside the page (iframe)
+      embed: false,              // opens inside the page (iframe)
       items: [
         { name: "Google",    url: "https://www.google.com",    icon: "🔎" },
         { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️" },
@@ -51,8 +51,8 @@ window.MATHLY_HOME = {
       id: "games",
       title: "Games",
       icon: "🎮",
-      direct: true,             // no url bar
-      embed: false,             // straight to the proxied page (set true to keep it in an iframe)
+      direct: false,             // no url bar
+      embed: true,             // straight to the proxied page (set true to keep it in an iframe)
       items: [
         { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games" },
         { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games" },
