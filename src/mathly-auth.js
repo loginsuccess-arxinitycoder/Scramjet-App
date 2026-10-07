@@ -13,6 +13,8 @@ const CRED_HASH =
 // Signing key: the SAME on every restart and every server instance, so a valid login
 // never randomly stops working. For extra safety, set SESSION_SECRET (any long random
 // string) on your host.
+// Tab title for the cloaked tab right after login (it then follows the real page title).
+const SITE_TITLE = process.env.SITE_TITLE || "Surfboard";
 const SECRET = createHash("sha256")
 	.update("mathly:" + (process.env.SESSION_SECRET || CRED_HASH))
 	.digest("hex");
@@ -100,9 +102,37 @@ input{display:block;width:100%;margin-top:4px;padding:10px;font:inherit;border:1
 var m=document.getElementById("modal"),u=document.getElementById("u"),p=document.getElementById("p"),e=document.getElementById("err");
 document.getElementById("open").onclick=function(){m.classList.add("open");u.focus()};
 document.getElementById("cancel").onclick=function(){m.classList.remove("open");e.textContent=""};
+var ALLOW="fullscreen; autoplay; gamepad; clipboard-read; clipboard-write; microphone; camera; geolocation; accelerometer; gyroscope; encrypted-media; picture-in-picture; display-capture; midi; screen-wake-lock; web-share";
+var EXIT_URL="https://www.google.com"; /* where THIS tab goes after the cloak opens */
+function enter(title){
+  if(window.top!==window.self){location.reload();return}  /* already inside the cloak */
+  var w=window.open("about:blank","_blank");
+  if(!w){location.reload();return}                        /* popups blocked: just load normally */
+  try{
+    var d=w.document;
+    d.title=title||"";
+    var l=d.createElement("link");l.rel="icon";l.href=location.origin+"/favicon.ico";d.head.appendChild(l);
+    d.documentElement.style.cssText="height:100%;margin:0;background:#0f1524";
+    d.body.style.cssText="height:100%;margin:0;overflow:hidden;background:#0f1524";
+    var f=d.createElement("iframe");
+    f.src=location.origin+"/";
+    f.setAttribute("allow",ALLOW);f.setAttribute("allowfullscreen","");f.allowFullscreen=true;
+    f.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;border:0";
+    d.body.appendChild(f);
+    /* keep the tab title in sync with the page inside, like an uncloaked tab */
+    var s=d.createElement("script");
+    s.textContent='setInterval(function(){try{var f=document.querySelector("iframe"),t=f.contentDocument.title;if(t&&document.title!==t)document.title=t}catch(e){}},300)';
+    d.body.appendChild(s);
+  }catch(x){location.reload();return}
+  try{window.close()}catch(x){}
+  setTimeout(function(){location.replace(EXIT_URL)},250);
+}
 function login(){
   fetch("/_mathly/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({u:u.value,p:p.value})})
-   .then(function(r){ if(r.ok) location.reload(); else e.textContent = r.status===429 ? "Too many tries. Wait a minute." : "Wrong username or password."; })
+   .then(function(r){
+     if(!r.ok){e.textContent = r.status===429 ? "Too many tries. Wait a minute." : "Wrong username or password.";return}
+     return r.json().then(function(j){enter(j&&j.title)});
+   })
    .catch(function(){ e.textContent="Something went wrong."; });
 }
 document.getElementById("go").onclick=login;
@@ -251,7 +281,7 @@ export function mathlyAuth(fastify) {
 		if (!safeEq(h, CRED_HASH)) return reply.code(401).send({ ok: false });
 		const exp = Date.now() + SESSION_MS;
 		reply.header("Set-Cookie", cookieStr(`${exp}.${sign(exp)}`, req));
-		return { ok: true };
+		return { ok: true, title: SITE_TITLE };
 	});
 
 	fastify.post("/_mathly/logout", async (req, reply) => {
