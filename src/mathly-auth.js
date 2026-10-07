@@ -142,7 +142,7 @@ var n=document.createElement("script");n.src="/_mathly/nav.js";document.head.app
 
 // Loaded by return.js on every page. Handles /l?url=...&f=true and draws the URL bar.
 const NAV_JS = `(function(){
-var q=new URLSearchParams(location.search),target=q.get("url"),direct=q.get("f")==="true",PREFIX="/scramjet/",BAR=44;
+var q=new URLSearchParams(location.search),target=q.get("url"),noBar=q.get("f")==="true",ep=q.get("embed"),embed=ep===null?!noBar:ep==="true",PREFIX="/scramjet/",BAR=44;
 function frame(){return document.getElementById("sj-frame")||document.querySelector("iframe")}
 function enc(u){try{if(typeof scramjet!=="undefined"&&scramjet.encodeUrl){var r=String(scramjet.encodeUrl(u));if(r.indexOf(PREFIX)>=0)return r}}catch(e){}return PREFIX+encodeURIComponent(u)}
 function dec(h){
@@ -173,10 +173,10 @@ function launch(){
   var form=document.getElementById("sj-form")||document.querySelector("form");
   var input=document.getElementById("sj-address")||(form&&form.querySelector("input"));
   if(!form||!input)return;
-  if(direct)document.documentElement.style.visibility="hidden";
+  if(!embed)document.documentElement.style.visibility="hidden";
   input.value=norm(target);
   if(form.requestSubmit)form.requestSubmit();else form.dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}));
-  if(!direct)return;
+  if(embed)return;
   var t0=Date.now(),iv=setInterval(function(){
     var f=frame();
     try{
@@ -189,8 +189,8 @@ function launch(){
 }
 if(document.readyState==="complete")launch();else window.addEventListener("load",launch);
 
-/* ---- URL bar (not shown when f=true) ---- */
-if(direct)return;
+/* ---- URL bar (not shown when f=true, or when embed=false) ---- */
+if(noBar||!embed)return;
 var host=document.createElement("div");
 host.style.cssText="all:initial;position:fixed;top:0;left:0;right:0;height:"+BAR+"px;z-index:2147483646;display:none;";
 var s=host.attachShadow({mode:"open"});
