@@ -30,11 +30,10 @@
       "&f=" + (direct ? "true" : "false") + "&embed=" + (embed ? "true" : "false");
   }
 
-  // d = the page's settings; a tile's own direct/embed override them
-  function tile(it, d) {
-    d = d || {};
-    var direct = it.direct !== undefined ? !!it.direct : !!d.direct;
-    var embed = it.embed !== undefined ? !!it.embed : (d.embed !== undefined ? !!d.embed : true);
+  // Each tile has its own direct / embed settings (see home-config.js)
+  function tile(it) {
+    var direct = !!it.direct;
+    var embed = it.embed !== undefined ? !!it.embed : true;
     var b = el("button", "mh-tile");
     b.type = "button";
     b.appendChild(el("span", "mh-ico", it.icon || "\uD83C\uDF10"));
@@ -50,7 +49,7 @@
     if (sec.html) { var x = el("div"); x.innerHTML = sec.html; s.appendChild(x); }
     if (sec.items) {
       var g = el("div", "mh-grid");
-      sec.items.forEach(function (it) { g.appendChild(tile(it, {})); });
+      sec.items.forEach(function (it) { g.appendChild(tile(it)); });
       s.appendChild(g);
     }
     return s;
@@ -87,7 +86,7 @@
 
     var grid = el("div", "mh-grid mh-pgrid"), tiles = [];
     (p.items || []).forEach(function (it) {
-      var t = tile(it, p);
+      var t = tile(it);
       t._n = (it.name + " " + (it.desc || "")).toLowerCase();
       tiles.push(t);
       grid.appendChild(t);
