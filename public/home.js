@@ -15,6 +15,29 @@
     return e;
   }
 
+  // Icons can be an emoji, short text (like "2048" or "YT"), or an image
+  // (a path like "/icons/poki.png", or any .png/.jpg/.svg/.webp/.ico address)
+  function icon(spec, cls, name) {
+    var wrap = el("span", cls);
+    spec = spec || "";
+    if (/[/]|[.](png|jpe?g|gif|webp|svg|ico)([?#].*)?$/i.test(spec)) {
+      var img = el("img");
+      img.src = spec; img.alt = ""; img.loading = "lazy"; img.draggable = false;
+      if (/^(https?:)?[/][/]/i.test(spec)) img.crossOrigin = "anonymous";
+      img.onerror = function () {          // image missing: fall back to the first letter
+        wrap.textContent = (name || "?").charAt(0).toUpperCase();
+        wrap.classList.add("mh-txt");
+      };
+      wrap.appendChild(img);
+    } else if (/[A-Za-z0-9]/.test(spec)) {
+      wrap.classList.add("mh-txt");
+      wrap.textContent = spec;
+    } else {
+      wrap.textContent = spec || "\uD83C\uDF10";
+    }
+    return wrap;
+  }
+
   // Open a site.
   //  embed: true  = inside the Mathly page (iframe)      false = browser goes straight to the proxied page
   //  direct: true = hide the url bar                      false = show the url bar (only possible when embedded)
@@ -36,7 +59,7 @@
     var embed = it.embed !== undefined ? !!it.embed : true;
     var b = el("button", "mh-tile");
     b.type = "button";
-    b.appendChild(el("span", "mh-ico", it.icon || "\uD83C\uDF10"));
+    b.appendChild(icon(it.icon, "mh-ico", it.name));
     b.appendChild(el("span", "mh-name", it.name));
     if (it.desc) { b.title = it.desc; b.appendChild(el("span", "mh-desc", it.desc)); }
     b.onclick = function () { launch(it.url, direct, embed); };
@@ -62,7 +85,7 @@
       pages.forEach(function (p) {
         var a = el("a", "mh-navcard");
         a.href = "#" + p.id;
-        a.appendChild(el("span", "mh-navico", p.icon || "📄"));
+        a.appendChild(icon(p.icon, "mh-navico", p.title));
         a.appendChild(el("span", "mh-navname", p.title));
         a.appendChild(el("span", "mh-navcount", (p.items || []).length + " items"));
         nav.appendChild(a);
@@ -77,7 +100,10 @@
     var back = el("a", "mh-back", "\u2190 Home");
     back.href = "#";
     bar.appendChild(back);
-    bar.appendChild(el("h2", "mh-ptitle", (p.icon ? p.icon + " " : "") + p.title));
+    var ph = el("h2", "mh-ptitle");
+    ph.appendChild(icon(p.icon, "mh-pico", p.title));
+    ph.appendChild(document.createTextNode(" " + p.title));
+    bar.appendChild(ph);
     var filter = el("input", "mh-filter");
     filter.type = "search";
     filter.placeholder = "Filter " + p.title.toLowerCase() + "...";
