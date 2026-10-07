@@ -1,20 +1,35 @@
 /* ============================================================
    HOME PAGE CONTENT  --  this is the only file you need to edit
    ------------------------------------------------------------
-   Add a tile:      copy one { name, url, icon, desc } line into a section's items
-   Add a section:   copy a whole { title, items: [...] } block
-   Custom HTML:     { title: "News", html: "<p>anything you want</p>" }
-   Open without the URL bar:  add  direct: true  to a tile
-   Full-width section:        add  wide: true  to a section (good for long game lists)
+   Each entry in "pages" becomes a big button on the home page that
+   opens its own page (#apps, #games, ...).
+
+   Page settings:
+     id       short name used in the address (no spaces)
+     title    name shown on the button and page
+     icon     emoji
+     direct   true  = tiles open with NO url bar (same as ?f=true)
+              false = tiles open with the url bar (back / reload / home)
+     items    the tiles
+
+   Tile settings:
+     name, url, icon, desc (hover text)
+     direct   optional: overrides the page's setting for just this tile
+
+   Add a tile:  copy one { ... } line into a page's items
+   Add a page:  copy a whole page block into "pages"
    ============================================================ */
 window.MATHLY_HOME = {
   title: "Mathly",
   tagline: "Search the web freely",
   placeholder: "Search the web freely",
 
-  sections: [
+  pages: [
     {
-      title: "Quick links",
+      id: "apps",
+      title: "Apps",
+      icon: "🧩",
+      direct: false,            // apps open WITH the url bar
       items: [
         { name: "Google",    url: "https://www.google.com",    icon: "🔎" },
         { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️" },
@@ -23,13 +38,19 @@ window.MATHLY_HOME = {
       ],
     },
     {
+      id: "games",
       title: "Games",
+      icon: "🎮",
+      direct: true,             // games open WITHOUT the url bar (f=true)
       items: [
-        { name: "Poki",        url: "https://poki.com",             icon: "🎮", desc: "Browser games" },
-        { name: "CrazyGames",  url: "https://www.crazygames.com",   icon: "🕹️", desc: "Browser games" },
-        { name: "Coolmath",    url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games" },
+        { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games" },
+        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games" },
+        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games" },
       ],
     },
-    // { title: "Your new section", items: [ { name: "Site", url: "https://example.com", icon: "⭐" } ] },
   ],
+
+  // Optional extra blocks shown on the home page under the buttons, e.g.
+  // { title: "News", html: "<p>anything you want</p>" }
+  sections: [],
 };
