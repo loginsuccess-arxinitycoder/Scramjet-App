@@ -4,7 +4,16 @@
    Each entry in "pages" becomes a big button on the home page that
    opens its own page (#apps, #games, ...).
 
-   Page settings:   id (no spaces), title, icon (emoji), items
+   Page settings:   id (no spaces), title, icon, items
+
+   ICONS (for pages and tiles) can be any of:
+     an emoji            icon: "🎮"
+     short text          icon: "2048"   or   icon: "YT"
+     an image file       icon: "/icons/poki.png"   (png, jpg, svg, webp, ico)
+   For images: put the file in the repo's public/icons/ folder and use the
+   path above. Images from other websites often get blocked by the browser,
+   so downloading them into public/icons/ is the reliable way. If an image
+   can't load, the first letter of the name is shown instead.
 
    EVERY TILE (app / game / service) has its own settings:
      name     shown under the icon
@@ -24,7 +33,7 @@
    Add a page:  copy a whole page block into "pages"
    ============================================================ */
 window.MATHLY_HOME = {
-  title: "Mathly",
+  title: "Surfboard",
   tagline: "Search the web freely",
   placeholder: "Search the web freely",
 
@@ -36,7 +45,7 @@ window.MATHLY_HOME = {
       items: [
         { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: true },
         { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: true },
-        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "📚", direct: false, embed: true },
+        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W", direct: false, embed: true },
         { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: true },
       ],
     },
