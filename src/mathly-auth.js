@@ -109,15 +109,17 @@ document.getElementById("go").onclick=login;
 [u,p].forEach(function(el){el.addEventListener("keydown",function(ev){if(ev.key==="Enter")login()})});
 </script></body></html>`;
 
-// Only ever sent to logged-in users. Adds the "Return to fake site" button.
-// While a website is open in the proxy the button hides; hover (or tap) the bottom-right
-// corner to bring it back.
+// Only ever sent to logged-in users. Draws the "Logout" button on the home page and the
+// Apps/Games pages, hides it while a website is open in the proxy, and loads nav.js.
 const RETURN_JS = `(function(){
 var host=document.createElement("div");
-host.style.cssText="all:initial;position:fixed;right:0;bottom:0;z-index:2147483647;";
+host.style.cssText="all:initial;position:fixed;right:12px;bottom:12px;z-index:2147483647;display:block;";
 var s=host.attachShadow({mode:"open"});
-s.innerHTML='<style>button{position:absolute;right:8px;bottom:8px;font:600 13px "Trebuchet MS","Segoe UI",sans-serif;background:#2f5bea;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);white-space:nowrap}button:focus-visible{outline:3px solid #fff;outline-offset:2px}.corner button{visibility:hidden}</style><div id="w"><button id="b">Return to fake site</button></div>';
-var w=s.getElementById("w"),last="",hover=false,timer=0;
+s.innerHTML='<style>button{font:600 13px "Trebuchet MS","Segoe UI",sans-serif;background:#2f5bea;color:#fff;border:0;border-radius:999px;padding:9px 18px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);opacity:.9}button:hover{opacity:1}button:focus-visible{outline:3px solid #fff;outline-offset:2px}</style><button id="b">Logout</button>';
+s.getElementById("b").onclick=function(){
+  fetch("/_mathly/logout",{method:"POST"}).finally(function(){location.replace("/?"+Date.now())});
+};
+document.documentElement.appendChild(host);
 function browsing(){
   var f=document.querySelectorAll("iframe");
   for(var i=0;i<f.length;i++){
@@ -126,25 +128,14 @@ function browsing(){
   }
   return false;
 }
+var last=null;
 function update(){
-  var mode=(!browsing()||hover)?"full":"corner";
-  if(mode===last)return;
-  last=mode;
-  host.style.width=mode==="full"?"190px":"28px";
-  host.style.height=mode==="full"?"56px":"28px";
-  w.className=mode==="full"?"":"corner";
+  var b=browsing();
+  if(b===last)return;
+  last=b;
+  host.style.display=b?"none":"block";
 }
-host.addEventListener("mouseenter",function(){hover=true;update()});
-host.addEventListener("mouseleave",function(){hover=false;update()});
-host.addEventListener("click",function(){
-  if(last==="corner"){hover=true;update();clearTimeout(timer);timer=setTimeout(function(){hover=false;update()},4000)}
-});
-s.getElementById("b").onclick=function(){
-  fetch("/_mathly/logout",{method:"POST"}).finally(function(){location.replace("/?"+Date.now())});
-};
-document.documentElement.appendChild(host);
-new MutationObserver(update).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["style","class","hidden","src"]});
-setInterval(update,1000);
+setInterval(update,500);
 update();
 var n=document.createElement("script");n.src="/_mathly/nav.js";document.head.appendChild(n);
 })();`;
@@ -274,6 +265,12 @@ export function mathlyAuth(fastify) {
 	fastify.get("/_mathly/nav.js", async (req, reply) =>
 		reply.header("Cache-Control", "no-store").type("text/javascript").send(NAV_JS),
 	);
+
+	// Visit /_mathly/logout in the address bar to log out and get the fake Mathly page back
+	fastify.get("/_mathly/logout", async (req, reply) => {
+		reply.header("Set-Cookie", cookieStr("", req, 0)).header("Cache-Control", "no-store");
+		return reply.code(302).header("Location", "/").send();
+	});
 
 	fastify.get("/_mathly/return.js", async (req, reply) =>
 		reply.header("Cache-Control", "no-store").type("text/javascript").send(RETURN_JS),
