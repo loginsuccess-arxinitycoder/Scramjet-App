@@ -15,22 +15,32 @@
     return e;
   }
 
-  // Open a site: direct = no url bar (/l?...&f=true), otherwise same as typing it in the search box
-  function launch(url, direct) {
-    if (direct) { location.href = "/l?url=" + encodeURIComponent(url) + "&f=true"; return; }
-    $("sj-address").value = url;
-    var f = $("sj-form");
-    if (f.requestSubmit) f.requestSubmit();
-    else f.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  // Open a site.
+  //  embed: true  = inside the Mathly page (iframe)      false = browser goes straight to the proxied page
+  //  direct: true = hide the url bar                      false = show the url bar (only possible when embedded)
+  function launch(url, direct, embed) {
+    if (embed && !direct) {            // normal: same as typing it in the search box
+      $("sj-address").value = url;
+      var f = $("sj-form");
+      if (f.requestSubmit) f.requestSubmit();
+      else f.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+      return;
+    }
+    location.href = "/l?url=" + encodeURIComponent(url) +
+      "&f=" + (direct ? "true" : "false") + "&embed=" + (embed ? "true" : "false");
   }
 
-  function tile(it, direct) {
+  // d = the page's settings; a tile's own direct/embed override them
+  function tile(it, d) {
+    d = d || {};
+    var direct = it.direct !== undefined ? !!it.direct : !!d.direct;
+    var embed = it.embed !== undefined ? !!it.embed : (d.embed !== undefined ? !!d.embed : true);
     var b = el("button", "mh-tile");
     b.type = "button";
-    b.appendChild(el("span", "mh-ico", it.icon || "🌐"));
+    b.appendChild(el("span", "mh-ico", it.icon || "\uD83C\uDF10"));
     b.appendChild(el("span", "mh-name", it.name));
     if (it.desc) { b.title = it.desc; b.appendChild(el("span", "mh-desc", it.desc)); }
-    b.onclick = function () { launch(it.url, direct); };
+    b.onclick = function () { launch(it.url, direct, embed); };
     return b;
   }
 
@@ -40,7 +50,7 @@
     if (sec.html) { var x = el("div"); x.innerHTML = sec.html; s.appendChild(x); }
     if (sec.items) {
       var g = el("div", "mh-grid");
-      sec.items.forEach(function (it) { g.appendChild(tile(it, !!it.direct)); });
+      sec.items.forEach(function (it) { g.appendChild(tile(it, {})); });
       s.appendChild(g);
     }
     return s;
@@ -77,7 +87,7 @@
 
     var grid = el("div", "mh-grid mh-pgrid"), tiles = [];
     (p.items || []).forEach(function (it) {
-      var t = tile(it, it.direct !== undefined ? !!it.direct : !!p.direct);
+      var t = tile(it, p);
       t._n = (it.name + " " + (it.desc || "")).toLowerCase();
       tiles.push(t);
       grid.appendChild(t);
