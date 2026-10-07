@@ -24,13 +24,14 @@
     var n = document.createElement("span"); n.className = "mh-name"; n.textContent = it.name;
     b.appendChild(i); b.appendChild(n);
     if (it.desc) { var d = document.createElement("span"); d.className = "mh-desc"; d.textContent = it.desc; b.appendChild(d); }
+    if (it.desc) b.title = it.desc;
     b.onclick = function () { launch(it.url, it.direct); };
     return b;
   }
 
   var root = $("mh-sections");
   (C.sections || []).forEach(function (sec) {
-    var s = document.createElement("section"); s.className = "mh-sec";
+    var s = document.createElement("section"); s.className = "mh-sec" + (sec.wide ? " mh-wide" : "");
     if (sec.title) { var h = document.createElement("h2"); h.textContent = sec.title; s.appendChild(h); }
     if (sec.html) { var x = document.createElement("div"); x.innerHTML = sec.html; s.appendChild(x); }
     if (sec.items) {
