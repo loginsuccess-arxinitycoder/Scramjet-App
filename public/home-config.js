@@ -5,6 +5,7 @@
    Add a section:   copy a whole { title, items: [...] } block
    Custom HTML:     { title: "News", html: "<p>anything you want</p>" }
    Open without the URL bar:  add  direct: true  to a tile
+   Full-width section:        add  wide: true  to a section (good for long game lists)
    ============================================================ */
 window.MATHLY_HOME = {
   title: "Mathly",
