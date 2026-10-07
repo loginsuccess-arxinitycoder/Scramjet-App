@@ -30,3 +30,22 @@ body.mh{margin:0!important;background:#0f1524!important;color:#eef1f7!important;
 #sj-error,#sj-error-code{color:#ff8a8a;text-align:center;white-space:pre-wrap;margin:0}
 .mh-foot{text-align:center;color:#6f7b93;font-size:.8rem;margin-top:28px}
 .mh-foot a{color:#9aa6bd}
+
+/* ---- home buttons + separate pages ---- */
+#mh-sections.mh-single{display:block}
+.mh-nav{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:760px;margin:0 auto 8px;width:100%}
+.mh-navcard{display:flex;flex-direction:column;align-items:center;gap:4px;padding:26px 12px;background:#1d2535;
+  border:1px solid #2c3650;border-radius:18px;color:inherit;text-decoration:none;transition:transform .12s,border-color .12s}
+.mh-navcard:hover{transform:translateY(-3px);border-color:#7c9bff}
+.mh-navcard:focus-visible{outline:2px solid #7c9bff;outline-offset:2px}
+.mh-navico{font-size:2.6rem;line-height:1}
+.mh-navname{font-weight:700;font-size:1.2rem}
+.mh-navcount{font-size:.8rem;color:#9aa6bd}
+.mh-bar{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.mh-back{color:#9aa6bd;text-decoration:none;padding:8px 14px;border:1px solid #2c3650;border-radius:999px;background:#1d2535}
+.mh-back:hover{border-color:#7c9bff;color:#eef1f7}
+.mh-ptitle{margin:0;font-size:1.3rem;flex:1;min-width:120px}
+.mh-filter{height:38px;padding:0 16px;box-sizing:border-box;width:100%;max-width:300px;border-radius:19px;
+  border:1px solid #2c3650;background:#1d2535;color:#eef1f7;font:inherit}
+.mh-filter:focus{outline:2px solid #7c9bff}
+.mh-pgrid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
