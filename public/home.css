@@ -1,25 +1,32 @@
 /* Home page styles. Colors are at the top so they're easy to change. */
 body.mh{margin:0!important;background:#0f1524!important;color:#eef1f7!important;
   font-family:"Trebuchet MS","Segoe UI",sans-serif!important;min-height:100vh}
-#home{max-width:980px;margin:0 auto;padding:48px 20px 64px}
-.mh-top{text-align:center;margin-bottom:28px}
-.mh-top h1{font-size:clamp(2.2rem,6vw,3.6rem);margin:0;color:#7c9bff}
-.mh-top p{margin:8px 0 0;color:#9aa6bd}
-#sj-form{display:flex;justify-content:center;margin:0 0 36px}
-#sj-address{width:100%;max-width:560px;height:48px;padding:0 20px;box-sizing:border-box;
-  border-radius:24px;border:1px solid #2c3650;background:#1d2535;color:#eef1f7;font-size:1rem}
+#home{max-width:1500px;margin:0 auto;padding:28px 24px 40px}
+.mh-top{text-align:center;margin-bottom:16px}
+.mh-top h1{font-size:clamp(1.8rem,4vw,2.6rem);margin:0;color:#7c9bff}
+.mh-top p{margin:4px 0 0;color:#9aa6bd}
+#sj-form{display:flex;justify-content:center;margin:0 0 22px}
+#sj-address{width:100%;max-width:620px;height:44px;padding:0 20px;box-sizing:border-box;
+  border-radius:22px;border:1px solid #2c3650;background:#1d2535;color:#eef1f7;font-size:1rem}
 #sj-address:focus{outline:2px solid #7c9bff}
-.mh-sec{margin-bottom:34px}
-.mh-sec h2{font-size:1.05rem;color:#9aa6bd;margin:0 0 12px;text-transform:uppercase;letter-spacing:.06em}
-.mh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.mh-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 10px;
-  background:#1d2535;border:1px solid #2c3650;border-radius:14px;color:inherit;text-align:center;
-  cursor:pointer;font:inherit;transition:transform .12s,border-color .12s}
+
+/* sections sit side by side and fill the screen */
+#mh-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;align-items:start}
+.mh-sec{margin:0;background:#151d30;border:1px solid #2c3650;border-radius:16px;padding:14px 16px 16px}
+.mh-sec.mh-wide{grid-column:1/-1}
+.mh-sec h2{font-size:.85rem;color:#9aa6bd;margin:0 0 10px;text-transform:uppercase;letter-spacing:.08em}
+
+/* compact tiles, as many per row as fit */
+.mh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.mh-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  padding:12px 6px;background:#1d2535;border:1px solid #2c3650;border-radius:12px;color:inherit;
+  text-align:center;cursor:pointer;font:inherit;transition:transform .12s,border-color .12s}
 .mh-tile:hover{transform:translateY(-2px);border-color:#7c9bff}
 .mh-tile:focus-visible{outline:2px solid #7c9bff;outline-offset:2px}
-.mh-ico{font-size:2rem;line-height:1}
-.mh-name{font-weight:700}
-.mh-desc{font-size:.8rem;color:#9aa6bd}
-#sj-error,#sj-error-code{color:#ff8a8a;text-align:center;white-space:pre-wrap}
-.mh-foot{text-align:center;color:#6f7b93;font-size:.85rem;margin-top:48px}
+.mh-ico{font-size:1.7rem;line-height:1}
+.mh-name{font-weight:700;font-size:.82rem;overflow-wrap:anywhere}
+.mh-desc{display:none} /* shown as a hover tooltip instead */
+
+#sj-error,#sj-error-code{color:#ff8a8a;text-align:center;white-space:pre-wrap;margin:0}
+.mh-foot{text-align:center;color:#6f7b93;font-size:.8rem;margin-top:28px}
 .mh-foot a{color:#9aa6bd}
