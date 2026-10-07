@@ -4,7 +4,7 @@
 // websocket are all refused, so there is nothing to bypass.
 import { createHmac, createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
-const COOKIE = "mathly_auth";
+const COOKIE = "mathly_sid";
 const SESSION_MS = 12 * 60 * 60 * 1000; // 12 hours
 // SHA-256 of "username:password". Override with the MATHLY_HASH env var.
 const CRED_HASH =
@@ -52,8 +52,8 @@ export const isAuthed = (req) => authState(req) === "ok";
 
 const isHttps = (req) => req.headers["x-forwarded-proto"] === "https" || !!req.socket?.encrypted;
 const cookieStr = (val, req, maxAge) =>
-	`${COOKIE}=${val}; Path=/; HttpOnly; ` +
-	(isHttps(req) ? "SameSite=None; Secure; Partitioned" : "SameSite=Lax") +
+	`${COOKIE}=${val}; Path=/; HttpOnly; SameSite=Lax` +
+	(isHttps(req) ? "; Secure" : "") +
 	(maxAge !== undefined ? `; Max-Age=${maxAge}` : "");
 
 // crude brute-force limit: 10 login attempts per IP per minute
@@ -135,6 +135,7 @@ function login(){
    })
    .catch(function(){ e.textContent="Something went wrong."; });
 }
+window.addEventListener("pageshow",function(ev){if(ev.persisted)location.reload()});
 document.getElementById("go").onclick=login;
 [u,p].forEach(function(el){el.addEventListener("keydown",function(ev){if(ev.key==="Enter")login()})});
 </script></body></html>`;
@@ -263,8 +264,9 @@ export function mathlyAuth(fastify) {
 		if (path === "/_mathly/login" || path === "/_mathly/logout") return;
 		const state = authState(req);
 		if (state === "ok") return;
-		if (state !== "none") console.log(`[mathly] ${state} cookie on ${req.method} ${path}`);
 		const wantsHtml = req.method === "GET" && (req.headers.accept || "").includes("text/html");
+		if (state !== "none") console.log(`[mathly] ${state} cookie on ${req.method} ${path}`);
+		else if (wantsHtml) console.log(`[mathly] no login cookie on ${req.method} ${path} (host: ${req.headers.host})`);
 		reply
 			.code(wantsHtml ? 200 : 404)
 			.header("Cache-Control", "no-store")
@@ -280,7 +282,7 @@ export function mathlyAuth(fastify) {
 		const h = createHash("sha256").update(`${u}:${p}`).digest("hex");
 		if (!safeEq(h, CRED_HASH)) return reply.code(401).send({ ok: false });
 		const exp = Date.now() + SESSION_MS;
-		reply.header("Set-Cookie", cookieStr(`${exp}.${sign(exp)}`, req));
+		reply.header("Set-Cookie", cookieStr(`${exp}.${sign(exp)}`, req, Math.floor(SESSION_MS / 1000)));
 		return { ok: true, title: SITE_TITLE };
 	});
 
