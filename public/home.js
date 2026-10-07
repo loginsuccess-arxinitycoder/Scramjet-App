@@ -5,7 +5,7 @@
   var root = $("mh-sections");
 
   document.title = C.title || document.title;
-  $("mh-title").textContent = C.title || "Mathly";
+  $("mh-title").textContent = C.title || "Surfboard";
   if (C.placeholder) $("sj-address").placeholder = C.placeholder;
 
   function el(tag, cls, text) {
@@ -138,8 +138,14 @@
   window.addEventListener("hashchange", render);
   render();
 
-  // Hide the home page once a site is open in the proxy
-  new MutationObserver(function () {
+  // When a site opens in the proxy: hide the home page, and give the frame fullscreen + permissions
+  var ALLOW = "fullscreen; autoplay; gamepad; clipboard-read; clipboard-write; microphone; camera; geolocation; accelerometer; gyroscope; encrypted-media; picture-in-picture; display-capture; midi; screen-wake-lock; web-share";
+  new MutationObserver(function (muts) {
     if (document.querySelector("iframe")) $("home").style.display = "none";
+    muts.forEach(function (m) {
+      m.addedNodes.forEach(function (n) {
+        if (n.tagName === "IFRAME") { n.setAttribute("allow", ALLOW); n.setAttribute("allowfullscreen", ""); }
+      });
+    });
   }).observe(document.body, { childList: true });
 })();
