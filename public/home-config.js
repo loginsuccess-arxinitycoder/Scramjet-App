@@ -4,21 +4,16 @@
    Each entry in "pages" becomes a big button on the home page that
    opens its own page (#apps, #games, ...).
 
-   Page settings:
-     id       short name used in the address (no spaces)
-     title    name shown on the button and page
-     icon     emoji
-     direct   true  = hide the url bar (same as ?f=true)
-              false = show the url bar (back / reload / home)
-     embed    true  = site opens inside the Mathly page (iframe)   [default]
-              false = browser goes straight to the proxied page
-              (embed is separate from direct; with embed: false there is
-               never a url bar, because the Mathly page isn't there anymore)
-     items    the tiles
+   Page settings:   id (no spaces), title, icon (emoji), items
 
-   Tile settings:
-     name, url, icon, desc (hover text)
-     direct, embed   optional: override the page's setting for just this tile
+   EVERY TILE (app / game / service) has its own settings:
+     name     shown under the icon
+     url      the site to open
+     icon     emoji
+     desc     optional hover text
+     direct   true  = hide the url bar              (default: false)
+     embed    true  = open inside the Mathly page (iframe)   (default: true)
+              false = browser goes straight to the proxied page
 
    What the combinations do:
      embed: true,  direct: false   iframe + url bar
@@ -38,25 +33,21 @@ window.MATHLY_HOME = {
       id: "apps",
       title: "Apps",
       icon: "🧩",
-      direct: false,            // url bar shown
-      embed: false,              // opens inside the page (iframe)
       items: [
-        { name: "Google",    url: "https://www.google.com",    icon: "🔎" },
-        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️" },
-        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "📚" },
-        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬" },
+        { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: true },
+        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: true },
+        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "📚", direct: false, embed: true },
+        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: true },
       ],
     },
     {
       id: "games",
       title: "Games",
       icon: "🎮",
-      direct: false,             // no url bar
-      embed: true,             // straight to the proxied page (set true to keep it in an iframe)
       items: [
-        { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games" },
-        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games" },
-        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games" },
+        { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games", direct: true,  embed: false },
+        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: true,  embed: true  },
+        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: true  },
       ],
     },
   ],
