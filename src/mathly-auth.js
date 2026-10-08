@@ -135,7 +135,6 @@ function login(){
    })
    .catch(function(){ e.textContent="Something went wrong."; });
 }
-window.addEventListener("pageshow",function(ev){if(ev.persisted)location.reload()});
 document.getElementById("go").onclick=login;
 [u,p].forEach(function(el){el.addEventListener("keydown",function(ev){if(ev.key==="Enter")login()})});
 </script></body></html>`;
@@ -281,7 +280,7 @@ export function mathlyAuth(fastify) {
 		const h = createHash("sha256").update(`${u}:${p}`).digest("hex");
 		if (!safeEq(h, CRED_HASH)) return reply.code(401).send({ ok: false });
 		const exp = Date.now() + SESSION_MS;
-		reply.header("Set-Cookie", cookieStr(`${exp}.${sign(exp)}`, req, Math.floor(SESSION_MS / 1000)));
+		reply.header("Set-Cookie", cookieStr(`${exp}.${sign(exp)}`, req));
 		return { ok: true, title: SITE_TITLE };
 	});
 
