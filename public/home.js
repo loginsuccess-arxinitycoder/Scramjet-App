@@ -138,6 +138,47 @@
   window.addEventListener("hashchange", render);
   render();
 
+  // ---- Cloak button (bottom of the page): reopen this site inside an about:blank tab ----
+  var CK = C.cloak || {};
+  function cloak() {
+    var w = window.open("about:blank", "_blank");
+    if (!w) {
+      $("sj-error").textContent = "Your browser blocked the popup. Allow popups for this site and try again.";
+      return;
+    }
+    try {
+      var d = w.document;
+      d.title = document.title;
+      var l = d.createElement("link"); l.rel = "icon"; l.href = location.origin + "/favicon.ico"; d.head.appendChild(l);
+      d.documentElement.style.cssText = "height:100%;margin:0;background:#0f1524";
+      d.body.style.cssText = "height:100%;margin:0;overflow:hidden;background:#0f1524";
+      var f = d.createElement("iframe");
+      f.src = location.origin + "/";
+      f.setAttribute("allow", ALLOW); f.setAttribute("allowfullscreen", ""); f.allowFullscreen = true;
+      f.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;border:0";
+      d.body.appendChild(f);
+      // keep the tab title in sync with the page inside
+      var s = d.createElement("script");
+      s.textContent = 'setInterval(function(){try{var f=document.querySelector("iframe"),t=f.contentDocument.title;if(t&&document.title!==t)document.title=t}catch(e){}},300)';
+      d.body.appendChild(s);
+    } catch (e) {
+      try { w.close(); } catch (x) {}
+      $("sj-error").textContent = "Couldn't open the cloak.";
+      return;
+    }
+    if (CK.closeOriginal !== false) {          // close (or redirect) the tab you clicked from
+      try { window.close(); } catch (e) {}
+      setTimeout(function () { location.replace(CK.exitUrl || "https://www.google.com"); }, 250);
+    }
+  }
+  var foot = document.querySelector(".mh-foot");
+  if (foot && CK.enabled !== false && window.top === window.self) {   // not shown when already cloaked
+    var cb = el("button", "mh-cloak", CK.label || "Cloak");
+    cb.type = "button";
+    cb.onclick = cloak;
+    foot.insertBefore(cb, foot.firstChild);
+  }
+
   // When a site opens in the proxy: hide the home page, and give the frame fullscreen + permissions
   var ALLOW = "fullscreen; autoplay; gamepad; clipboard-read; clipboard-write; microphone; camera; geolocation; accelerometer; gyroscope; encrypted-media; picture-in-picture; display-capture; midi; screen-wake-lock; web-share";
   new MutationObserver(function (muts) {
