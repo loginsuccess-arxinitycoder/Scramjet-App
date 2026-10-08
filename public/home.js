@@ -57,6 +57,7 @@
   function tile(it) {
     var direct = !!it.direct;
     var embed = it.embed !== undefined ? !!it.embed : true;
+    if (!direct) embed = true;   // the url bar needs the site to be inside the page
     var b = el("button", "mh-tile");
     b.type = "button";
     b.appendChild(icon(it.icon, "mh-ico", it.name));
