@@ -135,6 +135,7 @@ function login(){
    })
    .catch(function(){ e.textContent="Something went wrong."; });
 }
+window.addEventListener("pageshow",function(ev){if(ev.persisted)location.reload()});
 document.getElementById("go").onclick=login;
 [u,p].forEach(function(el){el.addEventListener("keydown",function(ev){if(ev.key==="Enter")login()})});
 </script></body></html>`;
@@ -172,7 +173,7 @@ var n=document.createElement("script");n.src="/_mathly/nav.js";document.head.app
 
 // Loaded by return.js on every page. Handles /l?url=...&f=true and draws the URL bar.
 const NAV_JS = `(function(){
-var q=new URLSearchParams(location.search),target=q.get("url"),noBar=q.get("f")==="true",ep=q.get("embed"),embed=ep===null?!noBar:ep==="true",PREFIX="/scramjet/",BAR=44;
+var q=new URLSearchParams(location.search),target=q.get("url"),noBar=q.get("f")==="true",ep=q.get("embed"),embed=!noBar?true:(ep===null?false:ep==="true"),PREFIX="/scramjet/",BAR=44;
 function frame(){return document.getElementById("sj-frame")||document.querySelector("iframe")}
 function enc(u){try{if(typeof scramjet!=="undefined"&&scramjet.encodeUrl){var r=String(scramjet.encodeUrl(u));if(r.indexOf(PREFIX)>=0)return r}}catch(e){}return PREFIX+encodeURIComponent(u)}
 function dec(h){
@@ -256,6 +257,11 @@ function tick(){
 setInterval(tick,500);
 })();`;
 
+const LOGOUT_PAGE = `<!DOCTYPE html><meta charset="utf-8"><title>Mathly</title>
+<body style="font-family:sans-serif;text-align:center;margin-top:20vh">
+<button style="font:inherit;padding:12px 24px" id="b">Log out</button>
+<script>document.getElementById("b").onclick=function(){fetch("/_mathly/logout",{method:"POST"}).finally(function(){location.replace("/")})}</script></body>`;
+
 export function mathlyAuth(fastify) {
 	// 1) The gate. Added first so it covers every route registered after it.
 	fastify.addHook("onRequest", async (req, reply) => {
@@ -296,11 +302,11 @@ export function mathlyAuth(fastify) {
 		reply.header("Cache-Control", "no-store").type("text/javascript").send(NAV_JS),
 	);
 
-	// Visit /_mathly/logout in the address bar to log out and get the fake Mathly page back
-	fastify.get("/_mathly/logout", async (req, reply) => {
-		reply.header("Set-Cookie", cookieStr("", req, 0)).header("Cache-Control", "no-store");
-		return reply.code(302).header("Location", "/").send();
-	});
+	// Visit /_mathly/logout in the address bar to get a "Log out" button. It does NOT log you out
+	// by itself, so a browser prefetching or autocompleting the address can't log you out by accident.
+	fastify.get("/_mathly/logout", async (req, reply) =>
+		reply.header("Cache-Control", "no-store").type("text/html").send(LOGOUT_PAGE),
+	);
 
 	fastify.get("/_mathly/return.js", async (req, reply) =>
 		reply.header("Cache-Control", "no-store").type("text/javascript").send(RETURN_JS),
