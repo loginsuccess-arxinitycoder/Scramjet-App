@@ -21,13 +21,17 @@
      icon     emoji
      desc     optional hover text
      direct   true  = hide the url bar              (default: false)
-     embed    true  = open inside the Mathly page (iframe)   (default: true)
-              false = browser goes straight to the proxied page
+              false = show the url bar (the site is always kept inside the page)
+     embed    only matters when direct is true:
+              true  = site stays inside the page (iframe) with no url bar   [default]
+              false = browser goes straight to the proxied page (raw link in the address bar)
 
    What the combinations do:
-     embed: true,  direct: false   iframe + url bar
-     embed: true,  direct: true    iframe, NO url bar
-     embed: false, (direct any)    straight to the proxied page, NO url bar
+     direct: false (embed ignored)  iframe + url bar
+     direct: true,  embed: true     iframe, NO url bar
+     direct: true,  embed: false    straight to the proxied page, NO url bar
+     (A page can't show my url bar once the browser leaves the site, so
+      direct: false always keeps the site inside the page.)
 
    Add a tile:  copy one { ... } line into a page's items
    Add a page:  copy a whole page block into "pages"
@@ -51,10 +55,10 @@ window.MATHLY_HOME = {
       title: "Apps",
       icon: "🧩",
       items: [
-        { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: false },
-        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: false },
-        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W", direct: false, embed: false },
-        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: false },
+        { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: true },
+        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: true },
+        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W", direct: false, embed: true },
+        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: true },
       ],
     },
     {
@@ -62,9 +66,9 @@ window.MATHLY_HOME = {
       title: "Games",
       icon: "🎮",
       items: [
-        { name: "Roblox (NGG)",       url: "https://nowgg.fun/apps/a/19900/b.html", icon: "https://img.icons8.com/forma-light-filled/1200/roblox.jpg", desc: "Browser games", direct: false,  embed: false},
-        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: false,  embed: false  },
-        { name: "CoolMathGames",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: false  },
+        { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games", direct: true,  embed: false },
+        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: true,  embed: true  },
+        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: true  },
       ],
     },
   ],
