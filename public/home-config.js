@@ -51,10 +51,10 @@ window.MATHLY_HOME = {
       title: "Apps",
       icon: "🧩",
       items: [
-        { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: true },
-        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: true },
-        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W", direct: false, embed: true },
-        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: true },
+        { name: "Google",    url: "https://www.google.com",    icon: "🔎", direct: false, embed: false },
+        { name: "YouTube",   url: "https://www.youtube.com",   icon: "▶️", direct: false, embed: false },
+        { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "W", direct: false, embed: false },
+        { name: "Reddit",    url: "https://www.reddit.com",    icon: "💬", direct: false, embed: false },
       ],
     },
     {
@@ -62,9 +62,9 @@ window.MATHLY_HOME = {
       title: "Games",
       icon: "🎮",
       items: [
-        { name: "Poki",       url: "https://poki.com",              icon: "🎮", desc: "Browser games", direct: true,  embed: false },
-        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: true,  embed: true  },
-        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: true  },
+        { name: "Roblox",       url: "https://nowgg.fun/apps/a/19900/b.html", icon: "https://img.icons8.com/forma-light-filled/1200/roblox.jpg", desc: "Browser games", direct: false,  embed: false},
+        { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: false,  embed: false  },
+        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: false  },
       ],
     },
   ],
