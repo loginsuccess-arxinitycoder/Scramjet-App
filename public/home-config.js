@@ -62,9 +62,9 @@ window.MATHLY_HOME = {
       title: "Games",
       icon: "🎮",
       items: [
-        { name: "Roblox",       url: "https://nowgg.fun/apps/a/19900/b.html", icon: "https://img.icons8.com/forma-light-filled/1200/roblox.jpg", desc: "Browser games", direct: false,  embed: false},
+        { name: "Roblox (NGG)",       url: "https://nowgg.fun/apps/a/19900/b.html", icon: "https://img.icons8.com/forma-light-filled/1200/roblox.jpg", desc: "Browser games", direct: false,  embed: false},
         { name: "CrazyGames", url: "https://www.crazygames.com",    icon: "🕹️", desc: "Browser games", direct: false,  embed: false  },
-        { name: "Coolmath",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: false  },
+        { name: "CoolMathGames",   url: "https://www.coolmathgames.com", icon: "🧮", desc: "Math-y games",  direct: false, embed: false  },
       ],
     },
   ],
