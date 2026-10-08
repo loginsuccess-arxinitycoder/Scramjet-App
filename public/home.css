@@ -60,3 +60,9 @@ body.mh{margin:0!important;background:#0f1524!important;color:#eef1f7!important;
 .mh-ico.mh-txt{min-width:40px;height:40px;padding:0 6px;border-radius:10px;font-size:.95rem}
 .mh-navico.mh-txt{min-width:64px;height:64px;padding:0 10px;border-radius:14px;font-size:1.4rem}
 .mh-pico.mh-txt{min-width:26px;height:26px;padding:0 5px;border-radius:7px;font-size:.8rem}
+
+/* ---- cloak button ---- */
+.mh-cloak{display:block;margin:0 auto 14px;padding:10px 26px;border-radius:999px;border:1px solid #2c3650;
+  background:#1d2535;color:#eef1f7;font:600 .9rem "Trebuchet MS","Segoe UI",sans-serif;cursor:pointer;transition:border-color .12s}
+.mh-cloak:hover{border-color:#7c9bff}
+.mh-cloak:focus-visible{outline:2px solid #7c9bff;outline-offset:2px}
