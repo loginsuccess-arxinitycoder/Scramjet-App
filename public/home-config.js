@@ -37,6 +37,14 @@ window.MATHLY_HOME = {
   tagline: "Search the web freely",
   placeholder: "Search the web freely",
 
+  // The "Cloak" button at the bottom of the page: reopens the site inside an about:blank tab.
+  cloak: {
+    enabled: true,                       // false = hide the button
+    label: "Cloak",                      // text on the button
+    closeOriginal: true,                 // close (or redirect) the tab you clicked it from
+    exitUrl: "https://www.google.com",   // where that tab goes if the browser won't let it close
+  },
+
   pages: [
     {
       id: "apps",
